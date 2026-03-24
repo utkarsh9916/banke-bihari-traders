@@ -29,9 +29,28 @@ function Categories() {
     { id: 14, name: "Headphones", count: "156+ products", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop" }
   ]
 
-  // 4 products per slide
-  const itemsPerSlide = 4
+  // Responsive items per slide based on screen size
+  const getItemsPerSlide = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) return 1      // Mobile: 1 item
+      if (window.innerWidth < 768) return 2      // Tablet small: 2 items
+      if (window.innerWidth < 1024) return 3     // Tablet large: 3 items
+      return 4                                    // Desktop: 4 items
+    }
+    return 4
+  }
+
+  const [itemsPerSlide, setItemsPerSlide] = useState(getItemsPerSlide())
   const totalItems = categories.length
+
+  // Update items per slide on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerSlide(getItemsPerSlide())
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Auto play - infinite loop
   useEffect(() => {
@@ -56,7 +75,7 @@ function Categories() {
     setTimeout(() => setIsAutoPlaying(true), 5000)
   }
 
-  // Get current 4 items in circular manner
+  // Get current items in circular manner
   const getCurrentItems = () => {
     const items = []
     for (let i = 0; i < itemsPerSlide; i++) {
@@ -68,19 +87,24 @@ function Categories() {
 
   const currentItems = getCurrentItems()
 
+  // Calculate width based on items per slide
+  const getItemWidth = () => {
+    return `${100 / itemsPerSlide}%`
+  }
+
   return (
-    <div className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="py-8 sm:py-12 md:py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
         
-        {/* Header */}
-        <div className="text-center mb-12">
-          <span className="inline-block px-4 py-2 bg-yellow-100 text-yellow-600 rounded-full text-sm font-semibold mb-4">
+        {/* Header - Responsive */}
+        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+          <span className="inline-block px-3 sm:px-4 py-1 sm:py-2 bg-yellow-100 text-yellow-600 rounded-full text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
             ✦ 14+ CATEGORIES ✦
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-2 sm:mb-4">
             Categories <span className="text-yellow-500">We Deal In</span>
           </h2>
-          <p className="text-gray-500 text-lg">Mobile Phones, Accessories & More</p>
+          <p className="text-sm sm:text-base md:text-lg text-gray-500">Mobile Phones, Accessories & More</p>
         </div>
 
         {/* Slider with Arrows */}
@@ -88,7 +112,7 @@ function Categories() {
           {/* Left Arrow */}
           <button 
             onClick={prevSlide}
-            className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="absolute -left-2 sm:-left-3 md:-left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             ←
           </button>
@@ -96,25 +120,26 @@ function Categories() {
           {/* Right Arrow */}
           <button 
             onClick={nextSlide}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="absolute -right-2 sm:-right-3 md:-right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             →
           </button>
 
-          {/* Categories Grid - ORIGINAL GRID VIEW with 4 columns */}
-          <div className="overflow-hidden mx-8">
+          {/* Categories Grid - Responsive */}
+          <div className="overflow-hidden mx-4 sm:mx-6 md:mx-8">
             <div 
-              className="flex transition-transform duration-500 ease-in-out gap-6"
-              style={{ transform: `translateX(-${currentIndex * (100/itemsPerSlide)}%)` }}
+              className="flex transition-transform duration-500 ease-in-out gap-3 sm:gap-4 md:gap-6"
+              style={{ transform: `translateX(-${currentIndex * (100 / itemsPerSlide)}%)` }}
             >
               {categories.map((category, index) => (
                 <div
                   key={`${category.id}-${index}`}
-                  className="min-w-[calc(25%-18px)] flex-shrink-0 group cursor-default" // 4 columns
+                  className="flex-shrink-0 group cursor-default"
+                  style={{ width: `calc(${getItemWidth()} - ${itemsPerSlide > 1 ? '12px' : '0px'})` }}
                 >
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="bg-white rounded-lg sm:rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                     {/* Image */}
-                    <div className="relative w-full h-48 overflow-hidden">
+                    <div className="relative w-full h-32 sm:h-40 md:h-48 overflow-hidden rounded-t-lg sm:rounded-t-xl">
                       <img 
                         src={category.image} 
                         alt={category.name}
@@ -124,15 +149,15 @@ function Categories() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                       
                       {/* Category Name on Image */}
-                      <div className="absolute bottom-3 left-3 text-white">
-                        <h3 className="font-bold text-lg">{category.name}</h3>
+                      <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 text-white">
+                        <h3 className="font-bold text-sm sm:text-base md:text-lg">{category.name}</h3>
                       </div>
                     </div>
                     
                     {/* Bottom Section */}
-                    <div className="p-4 flex justify-between items-center">
-                      <span className="text-sm text-gray-500">{category.count}</span>
-                      <span className="text-yellow-600 font-semibold">
+                    <div className="p-2 sm:p-3 md:p-4 flex justify-between items-center">
+                      <span className="text-xs sm:text-sm text-gray-500">{category.count}</span>
+                      <span className="text-yellow-600 font-semibold text-xs sm:text-sm">
                         {category.count}
                       </span>
                     </div>
@@ -143,9 +168,9 @@ function Categories() {
           </div>
         </div>
 
-        {/* Progress Indicators - Infinite Style */}
-        <div className="flex justify-center items-center gap-4 mt-8">
-          <div className="flex gap-2">
+        {/* Progress Indicators - Responsive */}
+        <div className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 mt-6 sm:mt-8">
+          <div className="flex gap-1 sm:gap-2">
             {categories.map((_, index) => (
               <button
                 key={index}
@@ -154,30 +179,32 @@ function Categories() {
                   setCurrentIndex(index)
                   setTimeout(() => setIsAutoPlaying(true), 5000)
                 }}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex ? "w-8 bg-yellow-500" : "w-2 bg-gray-300 hover:bg-gray-400"
+                className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex 
+                    ? "w-4 sm:w-6 md:w-8 bg-yellow-500" 
+                    : "w-1.5 sm:w-2 bg-gray-300 hover:bg-gray-400"
                 }`}
               />
             ))}
           </div>
           
-          {/* Auto-play indicator */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
-            <span className="text-xs text-gray-400">
+          {/* Auto-play indicator - Hidden on very small screens */}
+          <div className="hidden xs:flex items-center gap-1 sm:gap-2">
+            <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${isAutoPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+            <span className="text-[10px] sm:text-xs text-gray-400">
               {isAutoPlaying ? 'Auto-sliding' : 'Paused'}
             </span>
           </div>
         </div>
 
-        {/* View All Button */}
-        <div className="text-center mt-6">
+        {/* View All Button - Responsive */}
+        <div className="text-center mt-6 sm:mt-8 md:mt-10">
           <Link
             to="/categories"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-yellow-500 text-white rounded-full font-semibold hover:bg-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl group"
+            className="inline-flex items-center gap-1 sm:gap-2 px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-yellow-500 text-white rounded-full font-semibold text-sm sm:text-base hover:bg-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl group"
           >
             <span>View All Categories</span>
-            <span className="group-hover:translate-x-2 transition-transform">→</span>
+            <span className="group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform text-base sm:text-lg">→</span>
           </Link>
         </div>
       </div>
