@@ -11,6 +11,7 @@ import wm from "../assets/washingMachines.jpg"
 function Categories() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [itemsPerSlide, setItemsPerSlide] = useState(4)
   
   const categories = [
     { id: 1, name: "Fans", count: "128+ products", image: fans },
@@ -29,58 +30,103 @@ function Categories() {
     { id: 14, name: "Headphones", count: "156+ products", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop" }
   ]
 
-  // 4 products per slide
-  const itemsPerSlide = 4
-  const totalItems = categories.length
+  // Create infinite array by duplicating categories 3 times
+  const infiniteCategories = [...categories, ...categories, ...categories]
+  const totalItems = infiniteCategories.length
+  const middleIndex = categories.length // Starting index for infinite loop
+
+  // Responsive items per slide
+  useEffect(() => {
+    const updateItemsPerSlide = () => {
+      const width = window.innerWidth
+      if (width < 640) setItemsPerSlide(1)
+      else if (width < 768) setItemsPerSlide(2)
+      else if (width < 1024) setItemsPerSlide(3)
+      else setItemsPerSlide(4)
+    }
+    
+    updateItemsPerSlide()
+    window.addEventListener('resize', updateItemsPerSlide)
+    return () => window.removeEventListener('resize', updateItemsPerSlide)
+  }, [])
+
+  // Set initial index to middle for seamless infinite loop
+  useEffect(() => {
+    setCurrentIndex(middleIndex)
+  }, [itemsPerSlide, middleIndex])
+
+  const totalSlides = Math.ceil(totalItems / itemsPerSlide)
 
   // Auto play - infinite loop
   useEffect(() => {
     let interval
-    if (isAutoPlaying) {
+    if (isAutoPlaying && totalSlides > 1) {
       interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % totalItems)
+        setCurrentIndex((prev) => {
+          let newIndex = prev + 1
+          
+          // Check if we need to reset to middle
+          if (newIndex >= totalItems - itemsPerSlide) {
+            // Jump back to middle without animation
+            setTimeout(() => {
+              setCurrentIndex(middleIndex)
+            }, 50)
+            return newIndex - categories.length
+          }
+          return newIndex
+        })
       }, 3000)
     }
     return () => clearInterval(interval)
-  }, [isAutoPlaying, totalItems])
+  }, [isAutoPlaying, totalSlides, totalItems, itemsPerSlide, middleIndex, categories.length])
 
   const nextSlide = () => {
     setIsAutoPlaying(false)
-    setCurrentIndex((prev) => (prev + 1) % totalItems)
+    setCurrentIndex((prev) => {
+      let newIndex = prev + 1
+      if (newIndex >= totalItems - itemsPerSlide) {
+        setTimeout(() => {
+          setCurrentIndex(middleIndex)
+        }, 50)
+        return newIndex - categories.length
+      }
+      return newIndex
+    })
     setTimeout(() => setIsAutoPlaying(true), 5000)
   }
 
   const prevSlide = () => {
     setIsAutoPlaying(false)
-    setCurrentIndex((prev) => (prev - 1 + totalItems) % totalItems)
+    setCurrentIndex((prev) => {
+      let newIndex = prev - 1
+      if (newIndex < 0) {
+        setTimeout(() => {
+          setCurrentIndex(totalItems - itemsPerSlide - categories.length)
+        }, 50)
+        return newIndex + categories.length
+      }
+      return newIndex
+    })
     setTimeout(() => setIsAutoPlaying(true), 5000)
   }
 
-  // Get current 4 items in circular manner
-  const getCurrentItems = () => {
-    const items = []
-    for (let i = 0; i < itemsPerSlide; i++) {
-      const index = (currentIndex + i) % totalItems
-      items.push(categories[index])
-    }
-    return items
-  }
-
-  const currentItems = getCurrentItems()
+  // Get current slide items
+  const startIndex = currentIndex
+  const currentItems = infiniteCategories.slice(startIndex, startIndex + itemsPerSlide)
 
   return (
-    <div className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="py-8 sm:py-12 md:py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
         
         {/* Header */}
-        <div className="text-center mb-12">
-          <span className="inline-block px-4 py-2 bg-yellow-100 text-yellow-600 rounded-full text-sm font-semibold mb-4">
+        <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12">
+          <span className="inline-block px-3 sm:px-4 py-1 sm:py-2 bg-yellow-100 text-yellow-600 rounded-full text-xs sm:text-sm font-semibold mb-2 sm:mb-3 md:mb-4">
             ✦ 14+ CATEGORIES ✦
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-1 sm:mb-2 md:mb-4">
             Categories <span className="text-yellow-500">We Deal In</span>
           </h2>
-          <p className="text-gray-500 text-lg">Mobile Phones, Accessories & More</p>
+          <p className="text-sm sm:text-base md:text-lg text-gray-500">Mobile Phones, Accessories & More</p>
         </div>
 
         {/* Slider with Arrows */}
@@ -88,7 +134,7 @@ function Categories() {
           {/* Left Arrow */}
           <button 
             onClick={prevSlide}
-            className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="absolute -left-2 sm:-left-3 md:-left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             ←
           </button>
@@ -96,41 +142,47 @@ function Categories() {
           {/* Right Arrow */}
           <button 
             onClick={nextSlide}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="absolute -right-2 sm:-right-3 md:-right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center text-gray-600 hover:bg-yellow-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             →
           </button>
 
-          {/* Categories Grid - NON-CLICKABLE (removed Link) */}
-          <div className="overflow-hidden mx-8">
-            <div className="grid grid-cols-4 gap-6">
+          {/* Categories Grid - Infinite Loop */}
+          <div className="overflow-hidden mx-4 sm:mx-6 md:mx-8">
+            <div 
+              className="grid gap-3 sm:gap-4 md:gap-5 transition-transform duration-500 ease-in-out"
+              style={{
+                gridTemplateColumns: `repeat(${itemsPerSlide}, minmax(0, 1fr))`
+              }}
+            >
               {currentItems.map((category, index) => (
-                <div  // 👈 Changed from Link to div
-                  key={`${category.id}-${currentIndex}-${index}`}
-                  className="group w-full cursor-default"  // 👈 cursor-default
-                >
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                    {/* Image */}
-                    <div className="relative w-full h-48 overflow-hidden">
+                <div key={`${category.id}-${currentIndex}-${index}`} className="group cursor-default">
+                  <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                    {/* Image - Perfect Square - NO CUTTING */}
+                    <div className="relative w-full pt-[100%] bg-gray-100">
                       <img 
                         src={category.image} 
                         alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                       {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
                       
                       {/* Category Name on Image */}
-                      <div className="absolute bottom-3 left-3 text-white">
-                        <h3 className="font-bold text-lg">{category.name}</h3>
+                      <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 text-white">
+                        <h3 className="font-bold text-xs sm:text-sm md:text-base truncate">
+                          {category.name}
+                        </h3>
                       </div>
                     </div>
                     
                     {/* Bottom Section */}
-                    <div className="p-4 flex justify-between items-center">
-                      <span className="text-sm text-gray-500">{category.count}</span>
-                      <span className="text-yellow-600 font-semibold">
-                        {category.count}  {/* 👈 Changed from "Shop →" to count */}
+                    <div className="p-2 sm:p-3 md:p-4 flex justify-between items-center border-t border-gray-100">
+                      <span className="text-[10px] sm:text-xs md:text-sm text-gray-500">
+                        {category.count}
+                      </span>
+                      <span className="text-yellow-600 font-semibold text-[10px] sm:text-xs md:text-sm">
+                        {category.count}
                       </span>
                     </div>
                   </div>
@@ -141,40 +193,49 @@ function Categories() {
         </div>
 
         {/* Progress Indicators */}
-        <div className="flex justify-center items-center gap-4 mt-8">
-          <div className="flex gap-2">
-            {categories.map((_, index) => (
+        <div className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 mt-5 sm:mt-6 md:mt-8">
+          <div className="flex gap-1 sm:gap-2">
+            {categories.slice(0, Math.min(8, categories.length)).map((_, index) => (
               <button
                 key={index}
                 onClick={() => {
                   setIsAutoPlaying(false)
-                  setCurrentIndex(index)
+                  setCurrentIndex(middleIndex + index)
                   setTimeout(() => setIsAutoPlaying(true), 5000)
                 }}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex ? "w-8 bg-yellow-500" : "w-2 bg-gray-300 hover:bg-gray-400"
+                className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${
+                  Math.floor((currentIndex - middleIndex) % categories.length) === index
+                    ? "w-4 sm:w-5 md:w-6 bg-yellow-500" 
+                    : "w-1 sm:w-1.5 bg-gray-300 hover:bg-gray-400"
                 }`}
               />
             ))}
           </div>
           
           {/* Auto-play indicator */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
-            <span className="text-xs text-gray-400">
-              {isAutoPlaying ? 'Auto-sliding' : 'Paused'}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${isAutoPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+            <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-400">
+              {isAutoPlaying ? 'Infinite Loop • Auto-sliding' : 'Paused'}
             </span>
           </div>
         </div>
 
+        {/* Infinite Loop Text */}
+        <div className="text-center mt-3 sm:mt-4">
+          <p className="text-[10px] sm:text-xs text-gray-400 animate-pulse">
+            {/* 🔄 Infinite Loop • Never Ends • {categories.length}+ Categories */}
+          </p>
+        </div>
+
         {/* View All Button */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-5 sm:mt-6 md:mt-8 lg:mt-10">
           <Link
             to="/categories"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-yellow-500 text-white rounded-full font-semibold hover:bg-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl group"
+            className="inline-flex items-center gap-1 sm:gap-2 px-4 sm:px-5 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 bg-yellow-500 text-white rounded-full font-semibold text-xs sm:text-sm md:text-base hover:bg-yellow-600 transition-all duration-300 shadow-md hover:shadow-lg group"
           >
             <span>View All Categories</span>
-            <span className="group-hover:translate-x-2 transition-transform">→</span>
+            <span className="group-hover:translate-x-1 transition-transform text-sm sm:text-base">→</span>
           </Link>
         </div>
       </div>
