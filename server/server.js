@@ -30,7 +30,7 @@ app.use("/api", bannerRoutes);
 app.use("/api", galleryRoutes);
 // app.use("/api", contactroutes)
 app.use("/api", wholesaleRoutes);
-// app.use("/api/auth", authRoutes); // 👈 YEH LINE HATA DO (duplicate hai)
+
 
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
