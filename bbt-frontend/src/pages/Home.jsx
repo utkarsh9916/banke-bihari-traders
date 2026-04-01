@@ -8,6 +8,7 @@ import banner1 from "../assets/banner1.png"
 import banner2 from "../assets/banner2.png"
 import banner3 from "../assets/banner3.png"
 import kt2 from "../assets/kt2.jpeg"
+import sbbt from "../assets/sbbt.jpeg"
 
 
 // Icons
@@ -48,7 +49,7 @@ function HomePage() {
       reviews: 1245,
       manager: "Mr. Utkarsh Maheshwari",
       established: "2010",
-      image: kt2,
+      image: sbbt,
       features: ["Free Parking", "Wheelchair Accessible", "Free WiFi", "ATM"]
     },
     {
@@ -72,7 +73,7 @@ function HomePage() {
       reviews: 982,
       manager: "Mr. Utkarsh Maheshwari",
       established: "2025",
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=600&h=400&fit=crop",
+      image: kt2,
       features: ["Free Parking", "Wheelchair Accessible", "Free WiFi", "ATM"]
     },
     {
@@ -96,7 +97,7 @@ function HomePage() {
       reviews: 1567,
       manager: "Mr. Utkarsh Maheshwari",
       established: "2010",
-      image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=600&h=400&fit=crop",
+      image: kt2,
       features: ["Free Parking", "Wheelchair Accessible", "Free WiFi", "Coffee Shop", "ATM"]
     }
   ]

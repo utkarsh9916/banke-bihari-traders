@@ -1,3 +1,6 @@
+import kt2 from "../assets/kt2.jpeg"
+import sbbt from "../assets/sbbt.jpeg"
+
 import { useState, useEffect } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
 import { FaArrowLeft, FaStar, FaPhone, FaMapMarkerAlt, FaWhatsapp, FaEnvelope, FaDirections } from "react-icons/fa"
@@ -21,7 +24,7 @@ function StoreDetails() {
       services: ["fans", "coolers", "ac", "kitchen", "lighting"],
       rating: 4.8,
       reviews: 1245,
-      image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=600&h=400&fit=crop",
+      image: sbbt,
       timing: {
         monday: "10:00 AM - 8:00 PM",
         sunday: "Closed"
@@ -38,7 +41,7 @@ function StoreDetails() {
       services: ["fans", "coolers", "ac", "kitchen", "lighting", "laptops", "tvs"],
       rating: 4.7,
       reviews: 982,
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=600&h=400&fit=crop",
+      image:kt2,
       timing: {
         monday: "10:30 AM - 8:30 PM",
         sunday: "11:00 AM - 5:00 PM"
@@ -55,7 +58,7 @@ function StoreDetails() {
       services: ["fans", "coolers", "ac", "kitchen", "lighting", "mobile"],
       rating: 4.9,
       reviews: 1567,
-      image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=600&h=400&fit=crop",
+      image: kt2,
       timing: {
         monday: "9:30 AM - 9:00 PM",
         sunday: "10:00 AM - 6:00 PM"
