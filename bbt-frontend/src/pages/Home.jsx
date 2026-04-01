@@ -7,6 +7,8 @@ import StoreCard from "../components/StoreCard"  // ✅ Correct import
 import banner1 from "../assets/banner1.png"
 import banner2 from "../assets/banner2.png"
 import banner3 from "../assets/banner3.png"
+import kt2 from "../assets/kt2.jpeg"
+
 
 // Icons
 import { 
@@ -46,7 +48,7 @@ function HomePage() {
       reviews: 1245,
       manager: "Mr. Utkarsh Maheshwari",
       established: "2010",
-      image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=600&h=400&fit=crop",
+      image: kt2,
       features: ["Free Parking", "Wheelchair Accessible", "Free WiFi", "ATM"]
     },
     {
